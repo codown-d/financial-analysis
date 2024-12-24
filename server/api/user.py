@@ -2,7 +2,9 @@
 from flask import Blueprint, jsonify, request
 from influxdb_client import InfluxDBClient, Point
 from config import INFLUXDB
-from datetime import datetime,timezone
+
+from utils.index import create_stock_data
+
 
 user_bp = Blueprint('user', __name__)
 
@@ -26,17 +28,12 @@ def create_user():
     if not user_data or 'name' not in user_data:
         return jsonify({"error": "Name is required"}), 400
     
-    # 写入数据到 InfluxDB
-    user_name = user_data['name']
-    point = Point("user_data") \
-        .tag("user_name", user_name) \
-        .field("status", "created") \
-        .time(time=datetime.now(timezone.utc))
+    point = create_stock_data(symbol='AAPL', price=150.25, volume=1200, date="2024-12-24", time="09:30:00")
 
     try:
         write_api.write(bucket=INFLUXDB["bucket"], record=point)
     except Exception as e:
         return jsonify({"error": f"Failed to write data to InfluxDB: {str(e)}"}), 500
 
-    user = {"id": 3, "name": user_name}
+    user = {"id": 3, "name": 'user_name'}
     return jsonify(user), 201
