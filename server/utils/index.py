@@ -1,4 +1,3 @@
-# 创建股票数据点
 from datetime import datetime
 from influxdb_client import Point
 
