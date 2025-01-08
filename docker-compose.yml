@@ -1,0 +1,50 @@
+services:
+  # 后端服务 (Flask)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flask-backend
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - INFLUXDB_URL=http://150.158.93.25:8086
+      - INFLUXDB_TOKEN=Mukr1UKATraq_7cDJ5xLtunJ7twljjcFygcB6M_GRKcW7QEiyaA9ECz1lHtTToMcwGinqrYzH3qyWZEAxpMPtg
+      - INFLUXDB_ORG=hezhang
+      - INFLUXDB_BUCKET=my_bucket_name
+    volumes:
+      - ./backend:/app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - influxdb
+
+  # # 前端服务 (Astro)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: astro-frontend
+  #   volumes:
+  #     - ./frontend:/usr/src/app
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+
+  # InfluxDB 数据库
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    environment:
+      - INFLUXDB_DB=my_bucket_name
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=123456aA
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+
+volumes:
+  influxdb_data:
+    driver: local
