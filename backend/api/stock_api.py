@@ -3,7 +3,7 @@ from services.stock_service import fetch_and_store_stock
 
 stock_api = Blueprint('stock_api', __name__)
 
-@stock_api.route('/api/stock/<symbol>', methods=['GET'])
+@stock_api.route('/stock/<symbol>', methods=['GET'])
 def get_stock(symbol):
     """
     获取指定股票的当前价格。
@@ -16,7 +16,7 @@ def get_stock(symbol):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@stock_api.route('/api/stock/bulk', methods=['POST'])
+@stock_api.route('/stock/bulk', methods=['POST'])
 def get_bulk_stocks():
     """
     获取多个股票的当前价格。

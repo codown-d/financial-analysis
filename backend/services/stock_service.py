@@ -15,6 +15,7 @@ def fetch_and_store_stock(symbol):
     """
     price = get_stock_data(symbol)
     
+    return price
     # 使用环境变量中的配置项来连接 InfluxDB
     influx_client = InfluxDBClient(
         url=Config.INFLUXDB_URL, 
