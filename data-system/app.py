@@ -1,7 +1,9 @@
 
 from concurrent.futures import ThreadPoolExecutor
 import os
-target_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+target_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),'data')
+# 创建目录（如果不存在）
+os.makedirs(target_directory, exist_ok=True)
 os.chdir(target_directory)
 import pandas as pd
 import akshare as ak
