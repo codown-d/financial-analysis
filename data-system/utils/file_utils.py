@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import akshare as ak
 
 def check_folder_exists(folder_path):
     """
@@ -77,6 +78,7 @@ def save_code_to_file(folder_name,file_name, code_name):
         # 创建新数据并添加到 CSV 文件中
         new_data = pd.DataFrame({"code": [code_name]})
         add_data_to_csv(file_path, new_data)
+
 
 # 示例用法
 if __name__ == "__main__":

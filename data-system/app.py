@@ -1,13 +1,14 @@
 
 from concurrent.futures import ThreadPoolExecutor
 import os
+
 target_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),'data')
 # 创建目录（如果不存在）
 os.makedirs(target_directory, exist_ok=True)
 os.chdir(target_directory)
 import pandas as pd
 import akshare as ak
-from utils.file_utils import check_data_exists, save_code_to_file
+from utils.stock import  get_code_from_csv, get_stock_data, read_stock_from_parquet, set_code_to_csv
 # # 示例用法
 
 def main():
@@ -21,11 +22,18 @@ def main():
     #     print(f"数据不存在")
     # else:
     #     print(f"数据 {code_name} 已存在，不需要写入！")
-    file_path = os.path.join(os.getcwd(), folder_name,f'{code_name}.parquet')
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    stock_zh_a_tick_tx_js_df = ak.stock_zh_a_tick_tx_js(code_name)
-    stock_zh_a_tick_tx_js_df.to_parquet(f'{code_name}.snappy.parquet', compression='snappy')
-    stock_zh_a_tick_tx_js_df.to_parquet(f'{code_name}.Gzip.parquet', compression='Gzip')
-    print(stock_zh_a_tick_tx_js_df)
+    set_code_to_csv(folder_name)
+    code_list = get_code_from_csv(folder_name)
+    code_list= code_list["code"].to_list()
+    code_list.sort(reverse = False)
+    # 创建线程池
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        # 提交任务
+        for code in code_list[:1]:
+            executor.submit(get_stock_data,code,folder_name)
+    # read_stock_from_parquet('000001',folder_name)
+
+    # stock_zh_a_tick_tx_js_df = ak.stock_zh_a_tick_tx_js(symbol="sz000002")
+    # print(stock_zh_a_tick_tx_js_df)
 if __name__ == "__main__":
    main()
