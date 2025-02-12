@@ -1,5 +1,5 @@
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 
 target_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),'data')
@@ -8,11 +8,13 @@ os.makedirs(target_directory, exist_ok=True)
 os.chdir(target_directory)
 import pandas as pd
 import akshare as ak
-from utils.stock import  get_code_from_csv, get_stock_data, read_stock_from_parquet, set_code_to_csv
+from utils.stock import  get_code_from_csv, set_code_to_csv
+from stock import get_stock_data,get_stock_full,read_stock_from_parquet
+
 # # 示例用法
 
 def main():
-    folder_name = "2024-02-08"
+    folder_name = "2024-02-07"
     file_name = "code-data.csv"
     code_name = "sz000001"
     # 调用检查方法
@@ -22,16 +24,30 @@ def main():
     #     print(f"数据不存在")
     # else:
     #     print(f"数据 {code_name} 已存在，不需要写入！")
-    set_code_to_csv(folder_name)
+    # set_code_to_csv(folder_name)
     code_list = get_code_from_csv(folder_name)
     code_list= code_list["code"].to_list()
     code_list.sort(reverse = False)
-    # 创建线程池
+     # 创建一个线程池，最多并发执行 3 个任务
     with ThreadPoolExecutor(max_workers=3) as executor:
-        # 提交任务
-        for code in code_list[:1]:
-            executor.submit(get_stock_data,code,folder_name)
+        # 提交所有任务，并记录每个任务的输入参数与 future 关联
+        futures = {
+            executor.submit(get_stock_data, get_stock_full(stock_id)): f'sz{stock_id}'
+            for stock_id in code_list[:5]
+        }
+         # 等待所有任务完成并收集结果
+        for future in as_completed(futures):
+            try:
+                result = future.result()  # 获取任务的执行结果
+                code = futures[future]
+                result.to_parquet(f'{code}.snappy.parquet', compression='snappy')
+                print(f"Input parameter: {futures[future]}, Result: {result}")
+            except Exception as e:
+                print(f"An error occurred: {e}")
     # read_stock_from_parquet('000001',folder_name)
+    
+    # df = pd.read_parquet(f'sz000002.snappy.parquet')
+    # print(df)
 
     # stock_zh_a_tick_tx_js_df = ak.stock_zh_a_tick_tx_js(symbol="sz000002")
     # print(stock_zh_a_tick_tx_js_df)
