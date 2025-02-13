@@ -79,7 +79,40 @@ def save_code_to_file(folder_name,file_name, code_name):
         new_data = pd.DataFrame({"code": [code_name]})
         add_data_to_csv(file_path, new_data)
 
+def get_codes_with_pending_status(folder_name):
+    
+    folder_path = os.path.join(os.getcwd(), folder_name)
+    file_path = os.path.join(folder_path, 'code-data.csv')
+    # 读取 CSV 文件
+    df = pd.read_csv(file_path)
+    # 筛选 status 为 'pending' 的行
+    pending_df = df[df['status'] == 'pending']
+    
+    # 提取 'code' 列
+    codes = pending_df['code'].tolist()
+    
+    return codes
 
+def update_status_to_done(folder_name, code):
+    folder_path = os.path.join(os.getcwd(), folder_name)
+    file_path = os.path.join(folder_path, 'code-data.csv')
+    try:
+        # 读取 CSV 文件
+        df = pd.read_csv(file_path,dtype={'code': str})
+
+        # 检查是否存在该 code
+        if code in df['code'].values:
+            # 更新指定 code 的 status 为 'done'
+            df.loc[df['code'] == code, 'status'] = 'done'
+
+            # 保存更新后的 DataFrame 回 CSV 文件
+            df.to_csv(file_path, index=False)
+            print(f"Code {code} status updated to 'done'.")
+        else:
+            print(f"Code {code} not found in the CSV.")
+    
+    except Exception as e:
+        print(f"An error occurred: {e}")
 # 示例用法
 if __name__ == "__main__":
     check_data_exists("2024-02-07", "code-data.csv", "000001")

@@ -1,6 +1,8 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os.path
 import akshare as ak
 import pandas as pd
+from utils.stock import  get_codes_with_pending_status, set_code_to_csv, update_status_to_done
 
 def get_stock_data(symbol):
     print(symbol)
@@ -24,3 +26,29 @@ def read_stock_from_parquet(symbol, folder_name):
     print(folder_path)
     df = pd.read_parquet(folder_path)
     print(df.head())
+
+def task_stock(folder_name):
+    folder_path = os.path.join(os.getcwd(), folder_name)
+    file_path = os.path.join(folder_path, 'code-data.csv')
+    set_code_to_csv(folder_name)
+    code_list = get_codes_with_pending_status(folder_name)
+    print(code_list)
+    # code_list= code_list["code"].to_list()
+    code_list.sort(reverse = False)
+    with ThreadPoolExecutor(max_workers=12) as executor:
+        # 提交所有任务，并记录每个任务的输入参数与 future 关联
+        futures = {
+            executor.submit(get_stock_data, get_stock_full(stock_id)): f'sz{stock_id}'
+            for stock_id in code_list
+        }
+         # 等待所有任务完成并收集结果
+        for future in as_completed(futures):
+            try:
+                result = future.result()  # 获取任务的执行结果
+                code = futures[future]
+                result.to_parquet(os.path.join(folder_path, f'{code}.snappy.parquet') , compression='snappy')
+                code=code[2:]
+                update_status_to_done(folder_name,code)
+                print(f"Input parameter: {code}, Result: {result}")
+            except Exception as e:
+                print(f"An error occurred: {e}")
