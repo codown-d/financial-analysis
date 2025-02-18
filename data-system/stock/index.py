@@ -39,7 +39,7 @@ def task_stock(folder_name):
         # 提交所有任务，并记录每个任务的输入参数与 future 关联
         futures = {
             executor.submit(get_stock_data, get_stock_full(stock_id)): f'sz{stock_id}'
-            for stock_id in code_list
+            for stock_id in code_list[:1000]
         }
          # 等待所有任务完成并收集结果
         for future in as_completed(futures):
@@ -47,8 +47,12 @@ def task_stock(folder_name):
                 result = future.result()  # 获取任务的执行结果
                 code = futures[future]
                 result.to_parquet(os.path.join(folder_path, f'{code}.snappy.parquet') , compression='snappy')
-                code=code[2:]
-                update_status_to_done(folder_name,code)
-                print(f"Input parameter: {code}, Result: {result}")
+                if result.empty:
+                    print("Series is empty")
+                else:
+                    code=code[2:]
+                    update_status_to_done(folder_name,code)
+                    print(f"Input parameter: {code}, Result: {result}")
+               
             except Exception as e:
                 print(f"An error occurred: {e}")
