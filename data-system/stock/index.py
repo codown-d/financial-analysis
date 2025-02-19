@@ -5,15 +5,15 @@ import pandas as pd
 from utils.stock import  get_codes_with_pending_status, set_code_to_csv, update_status_to_done
 
 def get_stock_data(symbol):
-    print(symbol)
-    temp_df = ak.stock_zh_a_tick_tx_js(symbol)
+    print(123,symbol,get_stock_full(symbol))
+    temp_df = ak.stock_zh_a_tick_tx_js(get_stock_full(symbol))
     print(temp_df)
     return temp_df
 
 def get_stock_full(code):
     stock_id = int(code)  # 将股票ID转换为整数
     result = code
-    if 1 <= stock_id <= 199999:  # 深圳股票（000001 ~ 199999）
+    if 1 <= stock_id <= 400000:  # 深圳股票（000001 ~ 199999）
         result=f"sz{code}"
     elif 600000 <= stock_id <= 699999:  # 上海股票（600000 ~ 699999）
         result=f"sh{code}"
@@ -38,7 +38,7 @@ def task_stock(folder_name):
     with ThreadPoolExecutor(max_workers=4) as executor:
         # 提交所有任务，并记录每个任务的输入参数与 future 关联
         futures = {
-            executor.submit(get_stock_data, get_stock_full(stock_id)): f'sz{stock_id}'
+            executor.submit(get_stock_data, stock_id ): f'sz{stock_id}'
             for stock_id in code_list
         }
          # 等待所有任务完成并收集结果
