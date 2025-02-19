@@ -35,11 +35,11 @@ def task_stock(folder_name):
     print(code_list)
     # code_list= code_list["code"].to_list()
     code_list.sort(reverse = False)
-    with ThreadPoolExecutor(max_workers=12) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         # 提交所有任务，并记录每个任务的输入参数与 future 关联
         futures = {
             executor.submit(get_stock_data, get_stock_full(stock_id)): f'sz{stock_id}'
-            for stock_id in code_list[:1000]
+            for stock_id in code_list
         }
          # 等待所有任务完成并收集结果
         for future in as_completed(futures):
