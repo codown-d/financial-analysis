@@ -5,7 +5,6 @@ import pandas as pd
 from utils.stock import  get_codes_with_pending_status, set_code_to_csv, update_status_to_done
 
 def get_stock_data(symbol):
-    print(123,symbol,get_stock_full(symbol))
     temp_df = ak.stock_zh_a_tick_tx_js(get_stock_full(symbol))
     print(temp_df)
     return temp_df
