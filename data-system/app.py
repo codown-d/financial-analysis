@@ -15,7 +15,7 @@ from stock import task_stock
 # # 示例用法
 
 def main():
-    folder_name = "2024-02-21"
+    folder_name = "2024-02-24"
     file_name = "code-data.csv"
     code_name = "sz000001"
     # 调用检查方法
