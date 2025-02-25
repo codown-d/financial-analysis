@@ -1,6 +1,7 @@
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
+from datetime import datetime
 
 target_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),'data')
 # 创建目录（如果不存在）
@@ -15,7 +16,8 @@ from stock import task_stock
 # # 示例用法
 
 def main():
-    folder_name = "2024-02-24"
+    current_time = datetime.now()
+    folder_name = current_time.strftime("%Y-%m-%d")
     file_name = "code-data.csv"
     code_name = "sz000001"
     # 调用检查方法
